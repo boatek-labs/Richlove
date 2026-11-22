@@ -109,6 +109,22 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+app.get("/api/my-state", requireDatabase, requireInvite, async (_req, res) => {
+  try {
+    const [response, nickname] = await Promise.all([
+      pool.query("SELECT choice, message, created_at FROM proposal_responses ORDER BY created_at DESC LIMIT 1"),
+      pool.query("SELECT nickname, created_at FROM chosen_nicknames ORDER BY created_at DESC LIMIT 1")
+    ]);
+    res.json({
+      response: response.rows[0] || null,
+      nickname: nickname.rows[0] || null
+    });
+  } catch (error) {
+    console.error("Could not restore invitation state:", error.message);
+    res.status(500).json({ error: "Your saved progress could not be loaded." });
+  }
+});
+
 app.post("/api/response", requireDatabase, requireInvite, async (req, res) => {
   const choice = cleanText(req.body?.choice, 12);
   const message = cleanText(req.body?.message, 1200);
