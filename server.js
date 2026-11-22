@@ -1,4 +1,5 @@
-import "dotenv/config";\nimport express from "express";
+import "dotenv/config";
+import express from "express";
 import pg from "pg";
 import crypto from "node:crypto";
 import path from "node:path";
