@@ -28,7 +28,7 @@ async function sendJson(path, body) {
 function showFeedback(element, message, isError = false) {
   if (!element) return;
   element.textContent = message;
-  element.style.color = isError ? "#e4a9a5" : "";
+  element.classList.toggle("is-error", isError);
 }
 
 const responseFeedback = document.getElementById("response-feedback");
