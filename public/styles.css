@@ -159,7 +159,7 @@ input:focus, textarea:focus { border-color: #d6a1a0; }
 
 /* Guided presentation: each story chapter is a full-screen stop. */
 html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
-body { overscroll-behavior-y: none; }
+body { overscroll-behavior-y: none; touch-action: pan-x; }\ninput, textarea { touch-action: auto; }
 main > section { min-height: 100svh; scroll-snap-align: start; scroll-snap-stop: always; }
 .slide-nav {
   position: fixed; z-index: 20; left: 50%; bottom: max(16px, env(safe-area-inset-bottom));
