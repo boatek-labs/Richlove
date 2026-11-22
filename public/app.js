@@ -81,7 +81,7 @@ document.querySelectorAll("[data-choice]").forEach((button) => {
       if (choice === "yes") afterYes.classList.remove("panel-hidden");
       if (choice === "time") afterTime.classList.remove("panel-hidden");
       if (choice === "no") afterNo.classList.remove("panel-hidden");
-      (choice === "yes" ? afterYes : choice === "time" ? afterTime : afterNo).scrollIntoView({ behavior: "smooth", block: "center" });
+
     } catch (error) {
       button.disabled = false;
       button.innerHTML = original;
@@ -138,81 +138,71 @@ questionForm?.addEventListener("submit", async (event) => {
 });
 
 
-// Guided, one-section-at-a-time presentation.
-const slides = Array.from(document.querySelectorAll("main > section"));
+
+// Locked horizontal presentation: every chapter is a viewport-sized slide.
+const slides = Array.from(document.querySelectorAll("#top > section"));
+const track = document.getElementById("top");
 let activeSlide = 0;
-let navigationLocked = false;
-let touchStartY = 0;
-const slideNav = document.createElement("nav");
-slideNav.className = "slide-nav";
-slideNav.setAttribute("aria-label", "Story navigation");
-slideNav.innerHTML = `
-  <button type="button" class="slide-nav-button" data-direction="-1" aria-label="Previous section">← <span>Back</span></button>
-  <span class="slide-progress" aria-live="polite">01 / ${String(slides.length).padStart(2, "0")}</span>
-  <button type="button" class="slide-nav-button slide-next" data-direction="1">Next <span aria-hidden="true">→</span></button>
+let locked = false;
+let pointerStart = null;
+
+const nav = document.createElement("nav");
+nav.className = "story-controls";
+nav.setAttribute("aria-label", "Story controls");
+nav.innerHTML = `
+  <button type="button" class="story-control back" data-step="-1" aria-label="Previous slide">← <span>Back</span></button>
+  <span class="story-count" aria-live="polite">01 / ${String(slides.length).padStart(2,"0")}</span>
+  <button type="button" class="story-control next" data-step="1"><span>Next</span> <b aria-hidden="true">→</b></button>
 `;
-document.body.append(slideNav);
+document.body.append(nav);
 
-function goToSlide(index) {
-  const nextIndex = Math.max(0, Math.min(slides.length - 1, index));
-  if (nextIndex === activeSlide && window.scrollY < 5) return;
-  activeSlide = nextIndex;
-  navigationLocked = true;
-  slides[activeSlide].scrollIntoView({ behavior: "smooth", block: "start" });
-  slideNav.querySelector(".slide-progress").textContent =
-    `${String(activeSlide + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
-  const back = slideNav.querySelector('[data-direction="-1"]');
-  const next = slideNav.querySelector('[data-direction="1"]');
-  back.disabled = activeSlide === 0;
+function updateControls() {
+  nav.querySelector(".story-count").textContent =
+    `${String(activeSlide+1).padStart(2,"0")} / ${String(slides.length).padStart(2,"0")}`;
+  nav.querySelector(".back").disabled = activeSlide === 0;
+  const next = nav.querySelector(".next");
   next.disabled = activeSlide === slides.length - 1;
-  window.setTimeout(() => { navigationLocked = false; }, 750);
+  next.querySelector("span").textContent = activeSlide === 0 ? "Take a look" :
+    activeSlide === slides.length - 1 ? "Finished" : "Next";
 }
-slideNav.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-direction]");
-  if (button && !button.disabled) goToSlide(activeSlide + Number(button.dataset.direction));
+function goToSlide(index) {
+  const target = Math.max(0, Math.min(slides.length-1,index));
+  if (target === activeSlide || locked) return;
+  activeSlide = target;
+  locked = true;
+  track.style.transform = `translate3d(-${activeSlide*100}vw,0,0)`;
+  slides.forEach((slide,i) => slide.setAttribute("aria-hidden", i === activeSlide ? "false" : "true"));
+  slides[activeSlide].querySelectorAll(".reveal").forEach(el => el.classList.add("is-visible"));
+  updateControls();
+  window.setTimeout(() => { locked = false; }, 560);
+}
+nav.addEventListener("click", e => {
+  const button=e.target.closest("[data-step]");
+  if(button && !button.disabled) goToSlide(activeSlide+Number(button.dataset.step));
 });
-slides.forEach((slide, index) => {
-  slide.dataset.slideIndex = String(index);
+document.querySelector(".hero-copy .button")?.addEventListener("click", e => {
+  e.preventDefault();
+  goToSlide(1);
 });
-const slideObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
-      activeSlide = Number(entry.target.dataset.slideIndex);
-      slideNav.querySelector(".slide-progress").textContent =
-        `${String(activeSlide + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
-      slideNav.querySelector('[data-direction="-1"]').disabled = activeSlide === 0;
-      slideNav.querySelector('[data-direction="1"]').disabled = activeSlide === slides.length - 1;
-    }
-  });
-}, { threshold: [0.55] });
-slides.forEach((slide) => slideObserver.observe(slide));
+slides.forEach((slide,i) => {
+  slide.setAttribute("aria-hidden", i === 0 ? "false" : "true");
+  slide.dataset.slideIndex=String(i);
+});
+slides[0]?.querySelectorAll(".reveal").forEach(el=>el.classList.add("is-visible"));
+updateControls();
 
-let lastWheelAt = 0;
-window.addEventListener("wheel", (event) => {
-  if (Math.abs(event.deltaY) < 12 || navigationLocked) return;
-  event.preventDefault();
-  const now = Date.now();
-  if (now - lastWheelAt < 850) return;
-  lastWheelAt = now;
-  goToSlide(activeSlide + (event.deltaY > 0 ? 1 : -1));
-}, { passive: false });
-
-window.addEventListener("touchstart", (event) => {
-  touchStartY = event.changedTouches[0]?.screenY || 0;
-}, { passive: true });
-window.addEventListener("touchend", (event) => {
-  if (navigationLocked) return;
-  const endY = event.changedTouches[0]?.screenY || 0;
-  const distance = touchStartY - endY;
-  if (Math.abs(distance) > 55) goToSlide(activeSlide + (distance > 0 ? 1 : -1));
-}, { passive: true });
-
-window.addEventListener("keydown", (event) => {
-  if (["ArrowDown", "PageDown", " "].includes(event.key) && !["TEXTAREA", "INPUT"].includes(document.activeElement.tagName)) {
-    event.preventDefault();
-    goToSlide(activeSlide + 1);
-  } else if (["ArrowUp", "PageUp"].includes(event.key)) {
-    event.preventDefault();
-    goToSlide(activeSlide - 1);
-  }
+track.addEventListener("pointerdown", e => {
+  if(e.pointerType === "mouse" || e.target.closest("button,a,input,textarea")) return;
+  pointerStart={x:e.clientX,y:e.clientY};
+});
+track.addEventListener("pointerup", e => {
+  if(!pointerStart) return;
+  const dx=e.clientX-pointerStart.x, dy=e.clientY-pointerStart.y;
+  pointerStart=null;
+  if(Math.abs(dx)>65 && Math.abs(dx)>Math.abs(dy)*1.25) goToSlide(activeSlide+(dx<0?1:-1));
+});
+window.addEventListener("keydown", e => {
+  if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if(["ArrowRight","PageDown"].includes(e.key)) { e.preventDefault(); goToSlide(activeSlide+1); }
+  if(["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); goToSlide(activeSlide-1); }
 });
