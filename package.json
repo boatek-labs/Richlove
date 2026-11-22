@@ -1,0 +1,19 @@
+{
+  "name": "proposer-richlove",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A private, personal storytelling experience by Foster.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check public/app.js && node --check public/admin.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}
