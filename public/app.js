@@ -148,7 +148,7 @@ slideNav.className = "slide-nav";
 slideNav.setAttribute("aria-label", "Story navigation");
 slideNav.innerHTML = `
   <button type="button" class="slide-nav-button" data-direction="-1" aria-label="Previous section">← <span>Back</span></button>
-  <span class="slide-progress" aria-live="polite">01 / 08</span>
+  <span class="slide-progress" aria-live="polite">01 / ${String(slides.length).padStart(2, "0")}</span>
   <button type="button" class="slide-nav-button slide-next" data-direction="1">Next <span aria-hidden="true">→</span></button>
 `;
 document.body.append(slideNav);
