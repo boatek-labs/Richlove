@@ -36,6 +36,9 @@ const choiceGrid = document.getElementById("choice-grid");
 const afterYes = document.getElementById("after-yes");
 const afterTime = document.getElementById("after-time");
 const afterNo = document.getElementById("after-no");
+const nicknameInput = document.getElementById("nickname");
+const nicknameButton = document.getElementById("save-nickname");
+const nicknameFeedback = document.getElementById("nickname-feedback");
 
 async function restoreSavedState() {
   try {
@@ -87,9 +90,6 @@ document.querySelectorAll("[data-choice]").forEach((button) => {
   });
 });
 
-const nicknameInput = document.getElementById("nickname");
-const nicknameButton = document.getElementById("save-nickname");
-const nicknameFeedback = document.getElementById("nickname-feedback");
 nicknameButton?.addEventListener("click", async () => {
   const nickname = nicknameInput.value.trim();
   if (!nickname) {
