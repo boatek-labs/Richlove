@@ -39,7 +39,9 @@ function renderEntries(target, items, titleKey, bodyKey, empty) {
 }
 async function loadDashboard() {
   const data = await api("/api/admin/overview");
-  renderEntries("response-list", data.responses, "choice", "message", "No response has been submitted yet.");
+  const responseLabels = { yes: "Yes — open to it", time: "Needs some time", no: "No — respectfully declined" };
+  const responses = data.responses.map((item) => ({ ...item, choice: responseLabels[item.choice] || item.choice }));
+  renderEntries("response-list", responses, "choice", "message", "No response has been submitted yet.");
   renderEntries("nickname-list", data.nicknames, "nickname", "", "No nickname has been chosen yet.");
   renderEntries("question-list", data.questions, "question", "", "No questions or messages yet.");
   loginPanel.classList.add("panel-hidden");
