@@ -1,12 +1,3 @@
-const inviteFromUrl = new URLSearchParams(window.location.search).get("invite");
-if (inviteFromUrl) {
-  sessionStorage.setItem("proposer_invite", inviteFromUrl);
-  const cleanUrl = new URL(window.location.href);
-  cleanUrl.searchParams.delete("invite");
-  window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.hash);
-}
-const inviteToken = sessionStorage.getItem("proposer_invite") || "";
-
 const revealItems = document.querySelectorAll(".reveal");
 if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   const observer = new IntersectionObserver((entries, currentObserver) => {
@@ -25,10 +16,8 @@ if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-mot
 async function sendJson(path, body) {
   const response = await fetch(path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Invite-Token": inviteToken
-    },
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
   const data = await response.json().catch(() => ({}));
@@ -50,10 +39,6 @@ const afterNo = document.getElementById("after-no");
 
 document.querySelectorAll("[data-choice]").forEach((button) => {
   button.addEventListener("click", async () => {
-    if (!inviteToken) {
-      showFeedback(responseFeedback, "This page needs the private invitation link Foster sent you. Please open that original link.", true);
-      return;
-    }
     const choice = button.dataset.choice;
     const original = button.innerHTML;
     button.disabled = true;
