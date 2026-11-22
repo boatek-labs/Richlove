@@ -36,7 +36,7 @@ Do not commit `.env` or share the invitation token publicly. Use Vercel environm
 
 - `/` — Richlove's private story
 - `/admin` — Foster's private control room
-- `GET /api/health` — service and database readiness
+- `GET /api/health` — service and database readiness\n- `GET /api/my-state` — restore the invited visitor's saved response and nickname
 - `POST /api/response` — save a proposal response
 - `POST /api/nickname` — save her own chosen nickname
 - `POST /api/questions` — submit a question for Foster
