@@ -170,7 +170,7 @@ function goToSlide(index) {
   if (target === activeSlide || locked) return;
   activeSlide = target;
   locked = true;
-  track.style.transform = `translate3d(-${activeSlide*100}vw,0,0)`;
+  slides.forEach((slide,i) => { slide.style.transform = `translate3d(${(i-activeSlide)*100}vw,0,0)`; });
   slides.forEach((slide,i) => slide.setAttribute("aria-hidden", i === activeSlide ? "false" : "true"));
   slides[activeSlide].querySelectorAll(".reveal").forEach(el => el.classList.add("is-visible"));
   updateControls();
