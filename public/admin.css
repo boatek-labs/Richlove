@@ -1,0 +1,34 @@
+.admin-body { min-height: 100vh; display: flex; flex-direction: column; }
+.admin-back { color: var(--muted); font-size: 11px; }
+.admin-shell { width: min(100% - 12vw, 1100px); margin: 0 auto; padding: 90px 0 110px; flex: 1; }
+.admin-login { width: min(100%, 470px); margin: 5vh auto; padding: clamp(28px, 5vw, 55px); background: #eae0d7; }
+.admin-login .display-heading, .admin-heading .display-heading { font-size: clamp(54px, 7vw, 84px); }
+.admin-muted { color: var(--muted); font-size: 13px; line-height: 1.8; }
+.admin-login .field-label { color: var(--wine-dark); margin-top: 25px; }
+.admin-login input { color: var(--ink); background: var(--paper); border-color: var(--line); width: 100%; }
+.admin-login .button { width: 100%; margin-top: 14px; }
+.admin-feedback { min-height: 22px; color: var(--wine); font-size: 12px; line-height: 1.7; margin-top: 14px; }
+.admin-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; }
+.button-outline-dark { background: transparent; color: var(--wine-dark); border-color: var(--wine-dark); }
+.button-outline-dark:hover { background: rgba(112,47,60,.08); }
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 42px; }
+.admin-card { min-width: 0; background: #eae0d7; padding: 28px; }
+.admin-card-wide { grid-column: 1 / -1; }
+.admin-card .card-kicker { display: block; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.admin-list { display: grid; gap: 12px; padding-top: 17px; }
+.admin-entry { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.admin-entry:last-child { border-bottom: 0; }
+.admin-entry strong { display: block; color: var(--wine-dark); font: 500 20px var(--serif); margin-bottom: 5px; overflow-wrap: anywhere; }
+.admin-entry p { color: var(--muted); font-size: 13px; line-height: 1.7; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-entry time { display: block; color: #9a8981; font-size: 10px; margin-top: 8px; }
+.admin-empty { color: var(--muted); font-size: 13px; }
+.admin-footer { width: 100%; }
+.panel-hidden { display: none !important; }
+@media (max-width: 650px) {
+  .admin-shell { width: min(100% - 12vw, 1100px); padding-top: 55px; }
+  .admin-grid { grid-template-columns: 1fr; }
+  .admin-card-wide { grid-column: auto; }
+  .admin-heading { align-items: flex-start; flex-direction: column; }
+  .admin-heading .button { width: 100%; }
+  .admin-back { font-size: 9px; }
+}
