@@ -22,8 +22,8 @@ This is a real application, not a simulated proposal template. Responses, questi
 
 Required environment variables:
 - `DATABASE_URL`
-- `INVITE_TOKEN` — a long random invitation token; send Richlove a URL ending in `?invite=YOUR_TOKEN`
-- `ADMIN_PASSWORD` — a strong private password for Foster's control room
+- `INVITE_TOKEN` — a long random invitation token; Richlove's link is `https://YOUR-DOMAIN/?invite=YOUR_TOKEN`. The server exchanges it for an HttpOnly cookie and redirects to a clean URL.
+- `ADMIN_PASSWORD` — a strong private password for Foster's control room at `/admin`
 - `SESSION_SECRET` — a long random secret used to sign the admin session cookie
 
 Optional:
@@ -46,7 +46,8 @@ Do not commit `.env` or share the invitation token publicly. Use Vercel environm
 ## Privacy and consent
 
 - No analytics, ad trackers, or third-party identity profiling.
-- The invitation token protects the private experience; it is not a substitute for keeping the link private.
+- The story page is served only after the server validates the invitation token. It is exchanged for an HttpOnly, SameSite=Strict cookie; the token is not stored in browser JavaScript.
+- The invitation link is personal. Do not post it publicly or commit the token to GitHub.
 - The site does not treat a visit, a timer, or silence as a yes or no.
 - Richlove can choose yes, no, or that she needs time. Her choice is respected.
 - The admin dashboard shows submitted answers, not private browsing behaviour.
@@ -56,4 +57,4 @@ Do not commit `.env` or share the invitation token publicly. Use Vercel environm
 
 Connect this repository to Vercel and add the required environment variables in Project Settings. Vercel can deploy the Express entry point and serve files from `public/`. Run the SQL schema once against the production database before sharing the invitation link.
 
-The production URL and database are not configured by this repository commit alone.
+The story HTML lives in `views/` and is served by the Express app only after invitation validation. Static assets live in `public/`. The production URL, invitation token, admin password, session secret, and database are not configured by repository commits alone.
