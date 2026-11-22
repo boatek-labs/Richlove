@@ -136,3 +136,83 @@ questionForm?.addEventListener("submit", async (event) => {
     submit.innerHTML = 'Send to Foster <span>↗</span>';
   }
 });
+
+
+// Guided, one-section-at-a-time presentation.
+const slides = Array.from(document.querySelectorAll("main > section"));
+let activeSlide = 0;
+let navigationLocked = false;
+let touchStartY = 0;
+const slideNav = document.createElement("nav");
+slideNav.className = "slide-nav";
+slideNav.setAttribute("aria-label", "Story navigation");
+slideNav.innerHTML = `
+  <button type="button" class="slide-nav-button" data-direction="-1" aria-label="Previous section">← <span>Back</span></button>
+  <span class="slide-progress" aria-live="polite">01 / 08</span>
+  <button type="button" class="slide-nav-button slide-next" data-direction="1">Next <span aria-hidden="true">→</span></button>
+`;
+document.body.append(slideNav);
+
+function goToSlide(index) {
+  const nextIndex = Math.max(0, Math.min(slides.length - 1, index));
+  if (nextIndex === activeSlide && window.scrollY < 5) return;
+  activeSlide = nextIndex;
+  navigationLocked = true;
+  slides[activeSlide].scrollIntoView({ behavior: "smooth", block: "start" });
+  slideNav.querySelector(".slide-progress").textContent =
+    `${String(activeSlide + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+  const back = slideNav.querySelector('[data-direction="-1"]');
+  const next = slideNav.querySelector('[data-direction="1"]');
+  back.disabled = activeSlide === 0;
+  next.disabled = activeSlide === slides.length - 1;
+  window.setTimeout(() => { navigationLocked = false; }, 750);
+}
+slideNav.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-direction]");
+  if (button && !button.disabled) goToSlide(activeSlide + Number(button.dataset.direction));
+});
+slides.forEach((slide, index) => {
+  slide.dataset.slideIndex = String(index);
+});
+const slideObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
+      activeSlide = Number(entry.target.dataset.slideIndex);
+      slideNav.querySelector(".slide-progress").textContent =
+        `${String(activeSlide + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+      slideNav.querySelector('[data-direction="-1"]').disabled = activeSlide === 0;
+      slideNav.querySelector('[data-direction="1"]').disabled = activeSlide === slides.length - 1;
+    }
+  });
+}, { threshold: [0.55] });
+slides.forEach((slide) => slideObserver.observe(slide));
+
+let lastWheelAt = 0;
+window.addEventListener("wheel", (event) => {
+  if (Math.abs(event.deltaY) < 12 || navigationLocked) return;
+  event.preventDefault();
+  const now = Date.now();
+  if (now - lastWheelAt < 850) return;
+  lastWheelAt = now;
+  goToSlide(activeSlide + (event.deltaY > 0 ? 1 : -1));
+}, { passive: false });
+
+window.addEventListener("touchstart", (event) => {
+  touchStartY = event.changedTouches[0]?.screenY || 0;
+}, { passive: true });
+window.addEventListener("touchend", (event) => {
+  if (navigationLocked) return;
+  const endY = event.changedTouches[0]?.screenY || 0;
+  const distance = touchStartY - endY;
+  if (Math.abs(distance) > 55) goToSlide(activeSlide + (distance > 0 ? 1 : -1));
+}, { passive: true });
+
+window.addEventListener("keydown", (event) => {
+  if (["ArrowDown", "PageDown", " "].includes(event.key) && !["TEXTAREA", "INPUT"].includes(document.activeElement.tagName)) {
+    event.preventDefault();
+    goToSlide(activeSlide + 1);
+  } else if (["ArrowUp", "PageUp"].includes(event.key)) {
+    event.preventDefault();
+    goToSlide(activeSlide - 1);
+  }
+});
