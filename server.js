@@ -25,6 +25,7 @@ app.disable("x-powered-by");
 app.use(express.json({ limit: "12kb" }));
 app.use(express.static(path.join(root, "public"), {
   extensions: ["html"],
+  index: false,
   maxAge: isProduction ? "1h" : 0
 }));
 
@@ -77,9 +78,16 @@ function requireDatabase(_req, res, next) {
   next();
 }
 
+function cookieValue(req, name) {
+  const pair = (req.headers.cookie || "").split(";").map((part) => part.trim())
+    .find((part) => part.startsWith(name + "="));
+  if (!pair) return "";
+  try { return decodeURIComponent(pair.slice(name.length + 1)); } catch { return ""; }
+}
+
 function requireInvite(req, res, next) {
   const expected = process.env.INVITE_TOKEN;
-  const supplied = req.get("x-invite-token") || "";
+  const supplied = req.get("x-invite-token") || cookieValue(req, "proposer_invite");
   if (!expected || !secureEqual(supplied, expected)) {
     return res.status(403).json({ error: "This private invitation link is missing or invalid. Please open the link Foster sent you." });
   }
@@ -198,7 +206,28 @@ app.get("/api/admin/overview", requireDatabase, requireAdmin, async (_req, res) 
   }
 });
 
-app.get("/admin", (_req, res) => res.sendFile(path.join(root, "public", "admin.html")));
+app.get("/", (req, res) => {
+  const expected = process.env.INVITE_TOKEN;
+  const queryToken = typeof req.query.invite === "string" ? req.query.invite : "";
+  const existingCookie = cookieValue(req, "proposer_invite");
+  const supplied = queryToken || existingCookie;
+  if (!expected || !secureEqual(supplied, expected)) {
+    return res.status(404).sendFile(path.join(root, "public", "locked.html"));
+  }
+  if (queryToken) {
+    res.cookie("proposer_invite", expected, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 14 * 24 * 60 * 60 * 1000
+    });
+    return res.redirect(302, "/");
+  }
+  return res.sendFile(path.join(root, "views", "index.html"));
+});
+
+app.get("/admin", (_req, res) => res.sendFile(path.join(root, "views", "admin.html")));
 
 app.use((err, _req, res, _next) => {
   console.error("Request error:", err.message);
