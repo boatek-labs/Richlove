@@ -1,0 +1,4 @@
+.locked-page { min-height: 100svh; display: grid; place-items: center; padding: 30px; text-align: center; }
+.locked-card { max-width: 440px; }
+.locked-card h1 { font: 500 clamp(52px, 10vw, 76px)/1 var(--serif); letter-spacing: -.06em; margin: 22px 0; }
+.locked-card p { color: var(--muted); font-size: 14px; line-height: 1.9; }
