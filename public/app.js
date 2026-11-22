@@ -37,6 +37,33 @@ const afterYes = document.getElementById("after-yes");
 const afterTime = document.getElementById("after-time");
 const afterNo = document.getElementById("after-no");
 
+async function restoreSavedState() {
+  try {
+    const response = await fetch("/api/my-state", { credentials: "same-origin" });
+    if (!response.ok) return;
+    const state = await response.json();
+    if (!state.response) return;
+    choiceGrid.classList.add("panel-hidden");
+    if (state.response.choice === "yes") {
+      afterYes.classList.remove("panel-hidden");
+      if (state.nickname?.nickname) {
+        nicknameInput.value = state.nickname.nickname;
+        nicknameInput.disabled = true;
+        nicknameButton.disabled = true;
+        nicknameButton.textContent = "Saved ✓";
+        showFeedback(nicknameFeedback, `Your chosen name is saved: “${state.nickname.nickname}”.`);
+      }
+    } else if (state.response.choice === "time") {
+      afterTime.classList.remove("panel-hidden");
+    } else if (state.response.choice === "no") {
+      afterNo.classList.remove("panel-hidden");
+    }
+  } catch {
+    // The story remains readable if the database is temporarily unavailable.
+  }
+}
+restoreSavedState();
+
 document.querySelectorAll("[data-choice]").forEach((button) => {
   button.addEventListener("click", async () => {
     const choice = button.dataset.choice;
