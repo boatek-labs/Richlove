@@ -155,3 +155,28 @@ input:focus, textarea:focus { border-color: #d6a1a0; }
 
 .form-feedback.is-error { color: #e4a9a5 !important; }
 .question-form .form-feedback.is-error { color: var(--wine-dark) !important; }
+
+
+/* Guided presentation: each story chapter is a full-screen stop. */
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { overscroll-behavior-y: none; }
+main > section { min-height: 100svh; scroll-snap-align: start; scroll-snap-stop: always; }
+.slide-nav {
+  position: fixed; z-index: 20; left: 50%; bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%); display: flex; align-items: center; gap: 18px;
+  padding: 8px 10px; border: 1px solid rgba(255,255,255,.22);
+  background: rgba(40,33,31,.92); color: #fff8f1; backdrop-filter: blur(14px);
+  box-shadow: 0 8px 30px rgba(40,33,31,.16);
+}
+.slide-nav-button { border: 0; background: transparent; color: inherit; padding: 9px 12px; font-size: 11px; }
+.slide-nav-button span { opacity: .8; }
+.slide-nav-button:disabled { opacity: .28; cursor: default; }
+.slide-progress { min-width: 48px; text-align: center; color: #d6a1a0; font-size: 9px; letter-spacing: .15em; }
+@media (max-width: 560px) {
+  main > section { padding-bottom: 100px; }
+  .slide-nav { gap: 8px; bottom: max(10px, env(safe-area-inset-bottom)); }
+  .slide-nav-button { padding: 9px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: y proximity; }
+}
