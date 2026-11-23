@@ -47,6 +47,8 @@ async function restoreSavedState() {
     const state = await response.json();
     if (!state.response) return;
     choiceGrid.classList.add("panel-hidden");
+    document.querySelector(".proposal")?.classList.add("has-response");
+    document.querySelector(".proposal-content")?.classList.add("panel-hidden");
     if (state.response.choice === "yes") {
       afterYes.classList.remove("panel-hidden");
       if (state.nickname?.nickname) {
@@ -77,6 +79,8 @@ document.querySelectorAll("[data-choice]").forEach((button) => {
     try {
       await sendJson("/api/response", { choice });
       choiceGrid.classList.add("panel-hidden");
+      document.querySelector(".proposal")?.classList.add("has-response");
+      document.querySelector(".proposal-content")?.classList.add("panel-hidden");
       responseFeedback.textContent = "";
       if (choice === "yes") afterYes.classList.remove("panel-hidden");
       if (choice === "time") afterTime.classList.remove("panel-hidden");
