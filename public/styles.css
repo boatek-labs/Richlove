@@ -264,3 +264,63 @@ input, textarea { touch-action: auto; }
   .confession-card > p:not(.eyebrow) { line-height:1.35; margin-bottom:6px; }
 }
 @media(prefers-reduced-motion:reduce) { #top { transition:none; } }
+
+
+/* Keep each proposal response as its own unclipped, single-screen state. */
+.proposal.has-response {
+  display:flex !important;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:0;
+}
+.proposal.has-response .proposal-content { display:none !important; }
+.proposal.has-response .after-yes,
+.proposal.has-response .after-time,
+.proposal.has-response .after-no {
+  width:min(100%,760px);
+  max-width:760px;
+  margin:0;
+}
+.proposal.has-response .display-heading {
+  font-size:clamp(38px,5.2vw,66px);
+  line-height:1.02;
+  margin:8px 0 12px;
+}
+.proposal.has-response .after-yes > p:not(.eyebrow),
+.proposal.has-response .after-time > p:not(.eyebrow),
+.proposal.has-response .after-no > p:not(.eyebrow) {
+  margin:0 0 10px;
+  line-height:1.6;
+}
+.proposal.has-response .field-label { margin:12px 0 7px; }
+.proposal.has-response .input-row { width:100%; }
+.proposal.has-response input { min-width:0; }
+.proposal.has-response .form-feedback { margin-top:8px; }
+
+@media(max-width:760px) {
+  .proposal.has-response { align-items:stretch; }
+  .proposal.has-response .display-heading {
+    font-size:clamp(34px,9vw,46px);
+    margin:5px 0 9px;
+  }
+  .proposal.has-response .after-yes > p:not(.eyebrow),
+  .proposal.has-response .after-time > p:not(.eyebrow),
+  .proposal.has-response .after-no > p:not(.eyebrow) {
+    font-size:12px;
+    line-height:1.5;
+    margin-bottom:8px;
+  }
+  .proposal.has-response .field-label { margin:9px 0 6px; }
+  .proposal.has-response .input-row { flex-direction:column; gap:7px; }
+  .proposal.has-response .input-row .button { width:100%; min-height:43px; }
+}
+@media(max-height:650px) {
+  .proposal.has-response .display-heading { font-size:34px; margin:4px 0 7px; }
+  .proposal.has-response .after-yes > p:not(.eyebrow),
+  .proposal.has-response .after-time > p:not(.eyebrow),
+  .proposal.has-response .after-no > p:not(.eyebrow) { font-size:10px; line-height:1.35; margin-bottom:5px; }
+  .proposal.has-response .field-label { margin:6px 0 4px; }
+  .proposal.has-response input { padding:9px 12px; }
+  .proposal.has-response .input-row .button { min-height:38px; }
+}
